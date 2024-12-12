@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "C#: Rigol",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/Rigol/Rigol.csproj",
+            "launchConfigurationId": "TargetFramework=;Rigol"
+        }
+    ]
+}
