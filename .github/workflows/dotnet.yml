@@ -1,40 +1,28 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: Build & Test 🧪
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+
+env:
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        # Artifact name
-        name: test
-        # A file, directory or wildcard pattern that describes what to upload
-        path: /home/runner/work/Rigol/Rigol/Rigol/bin/Debug/net8.0/Rigol.dll
-    - name: GH Release
-        # You may pin to the exact commit or the version.
-        # uses: softprops/action-gh-release@7b4da11513bf3f43f9999e90eabced41ab8bb048
-      uses: softprops/action-gh-release@v2.2.0
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET 📦
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dependencies 📂
+        run: dotnet restore WebApi
+
+      - name: Build 🧱
+        run: dotnet build WebApi --configuration Release --no-restore
           
