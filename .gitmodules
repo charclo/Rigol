@@ -1,0 +1,4 @@
+[submodule "NET_IPTE_SCPI"]
+	path = NET_IPTE_SCPI
+	url = https://10.4.110.150:3000/Drivers/NET_IPTE_SCPI.git
+	branch = DotNet
