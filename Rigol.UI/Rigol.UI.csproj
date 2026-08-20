@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>RigolUI</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Run on a newer runtime when net8.0 itself is not installed (e.g. a .NET 10-only machine). -->
+    <RollForward>Major</RollForward>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rigol\Rigol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ship the project's mask alongside the app so it can be loaded at start-up. -->
+    <Content Include="..\mask.json" Link="mask.json" CopyToOutputDirectory="PreserveNewest"
+             Condition="Exists('..\mask.json')" />
+  </ItemGroup>
+
+</Project>

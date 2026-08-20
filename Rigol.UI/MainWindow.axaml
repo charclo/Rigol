@@ -1,0 +1,150 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:RigolUI"
+        x:Class="RigolUI.MainWindow"
+        Title="Rigol - Mask Test"
+        Width="1280" Height="800"
+        MinWidth="900" MinHeight="600">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,9,0,4" />
+      <Setter Property="Opacity" Value="0.75" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Opacity" Value="0.75" />
+    </Style>
+    <Style Selector="TextBlock.value">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="FontFamily" Value="Consolas,Menlo,monospace" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel>
+
+    <!-- Connection bar -->
+    <Border DockPanel.Dock="Top" Padding="12,10" Background="#1b1f27">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Classes="label" Text="Scope" />
+        <TextBox x:Name="IpBox" Width="150" Text="192.168.1.12" Watermark="IP address" />
+        <TextBlock Classes="label" Text="Channel" />
+        <ComboBox x:Name="ChannelBox" Width="72" SelectedIndex="0">
+          <ComboBoxItem>CH1</ComboBoxItem>
+          <ComboBoxItem>CH2</ComboBoxItem>
+          <ComboBoxItem>CH3</ComboBoxItem>
+          <ComboBoxItem>CH4</ComboBoxItem>
+        </ComboBox>
+        <Button x:Name="ConnectButton" Content="Connect" Width="110" Margin="0" />
+        <Button x:Name="RunButton" Content="Start" Width="110" Margin="0" IsEnabled="False" />
+        <TextBlock x:Name="ModelText" Classes="label" Text="" Margin="12,0,0,0" />
+      </StackPanel>
+    </Border>
+
+    <!-- Status bar -->
+    <Border DockPanel.Dock="Bottom" Padding="12,7" Background="#1b1f27">
+      <TextBlock x:Name="StatusText" Text="Not connected." Opacity="0.75" TextTrimming="CharacterEllipsis" />
+    </Border>
+
+    <!-- Side panel -->
+    <Border DockPanel.Dock="Right" Width="368" Padding="16,4,4,14" Background="#181c23">
+      <ScrollViewer>
+        <!-- The Fluent scrollbar is drawn over the content, so keep a gutter free for it. -->
+        <StackPanel Margin="0,0,18,0">
+
+          <Border x:Name="VerdictBorder" CornerRadius="6" Padding="0,10" Margin="0,8,0,2"
+                  Background="#2a313c">
+            <TextBlock x:Name="VerdictText" Text="NO MASK" FontSize="28" FontWeight="Bold"
+                       HorizontalAlignment="Center" />
+          </Border>
+
+          <TextBlock Classes="section" Text="STATISTICS" />
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" >
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Passed" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" x:Name="PassedText" Text="0" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Failed" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" x:Name="FailedText" Text="0" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Total" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" x:Name="TotalText" Text="0" />
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Repeat reads"
+                       ToolTip.Tip="Reads that returned the same frame as the previous one. Not judged and not counted." />
+            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" x:Name="DuplicateText" Text="0" />
+            <TextBlock Grid.Row="4" Grid.Column="0" Classes="label" Text="Not drawn"
+                       ToolTip.Tip="Frames that were judged and counted but replaced by a newer one before the display drew them. Grows whenever the scope produces frames faster than the redraw cap." />
+            <TextBlock Grid.Row="4" Grid.Column="1" Classes="value" x:Name="DroppedText" Text="0" />
+            <TextBlock Grid.Row="5" Grid.Column="0" Classes="label" Text="Rate"
+                       ToolTip.Tip="Distinct frames read per second. This is the acquisition rate, not the redraw rate." />
+            <TextBlock Grid.Row="5" Grid.Column="1" Classes="value" x:Name="RateText" Text="-" />
+          </Grid>
+
+          <TextBlock Classes="section" Text="DISPLAY" />
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Column="0" Classes="label" Text="Rate" Width="60" />
+            <NumericUpDown Grid.Column="1" x:Name="RedrawRateBox"
+                           Minimum="1" Maximum="60" Increment="1" Value="20" FormatString="0"
+                           ToolTip.Tip="Upper bound on how often a frame is fetched, judged and drawn." />
+            <TextBlock Grid.Column="2" Classes="label" Text="Hz" Margin="8,0,0,0" />
+          </Grid>
+          <TextBlock Opacity="0.6" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"
+                     Text="Caps how often a frame is fetched from the scope, judged and drawn. Lowering it keeps traffic and load off the link, at the cost of coverage: frames arriving between two reads are never tested. Raise it to the maximum to read as fast as the scope will answer." />
+
+          <TextBlock Classes="section" Text="LAST FRAME" />
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Failed samples" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Classes="value" x:Name="FailedSamplesText" Text="-" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Worst deviation" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="value" x:Name="WorstText" Text="-" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="At" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Classes="value" x:Name="WorstAtText" Text="-" />
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="Transfer" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Classes="value" x:Name="TimingText" Text="-" />
+          </Grid>
+
+          <TextBlock Classes="section" Text="MASK RANGE" />
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" >
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="X" Width="46" />
+            <NumericUpDown Grid.Row="0" Grid.Column="1" x:Name="XToleranceBox"
+                           Minimum="0.01" Maximum="2" Increment="0.01" Value="0.24"
+                           FormatString="0.00" Margin="0,0,0,6" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="Y" Width="46" />
+            <NumericUpDown Grid.Row="1" Grid.Column="1" x:Name="YToleranceBox"
+                           Minimum="0.04" Maximum="2" Increment="0.01" Value="0.24"
+                           FormatString="0.00" Margin="0,0,0,6" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="Edge" Width="46" />
+            <NumericUpDown Grid.Row="2" Grid.Column="1" x:Name="EdgeGuardBox"
+                           Minimum="0" Maximum="500" Increment="1" Value="0"
+                           FormatString="0" />
+          </Grid>
+          <TextBlock x:Name="ToleranceHintText" Opacity="0.6" FontSize="11" TextWrapping="Wrap"
+                     Margin="0,6,0,0"
+                     Text="X and Y are in divisions, same range as :MASK:X and :MASK:Y. Edge ignores samples at both frame ends, where the horizontal tolerance is one-sided." />
+
+          <TextBlock Classes="section" Text="MASK" />
+          <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Classes="label" Text="Frames" Width="60" />
+            <NumericUpDown Grid.Column="1" x:Name="ReferenceFramesBox"
+                           Minimum="1" Maximum="64" Increment="1" Value="8" FormatString="0" />
+          </Grid>
+          <Button x:Name="BuildMaskButton" Content="Build from golden signal" IsEnabled="False" />
+          <Button x:Name="LoadMaskButton" Content="Load mask..." />
+          <Button x:Name="SaveMaskButton" Content="Save mask..." IsEnabled="False" />
+          <Button x:Name="ResetButton" Content="Reset counters" />
+
+          <TextBlock x:Name="MaskInfoText" Opacity="0.6" FontSize="11" TextWrapping="Wrap"
+                     Margin="0,8,0,0" Text="No mask loaded." />
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+
+    <!-- Plot -->
+    <local:WaveformView x:Name="Plot" Margin="12" />
+
+  </DockPanel>
+</Window>

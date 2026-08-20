@@ -5,6 +5,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Run on a newer runtime when net8.0 itself is not installed (e.g. a .NET 10-only machine). -->
+    <RollForward>Major</RollForward>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NET_IPTE_SCPI\NET_IPTE_SCPI.csproj" />
+  </ItemGroup>
 
 </Project>

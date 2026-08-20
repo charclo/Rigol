@@ -1,11 +1,66 @@
 {
+    "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: Rigol",
-            "type": "dotnet",
+            "name": "UI: mask test",
+            "type": "coreclr",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/Rigol/Rigol.csproj",
-            "launchConfigurationId": "TargetFramework=;Rigol"
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Rigol.UI/bin/Debug/net8.0/Rigol.UI.dll",
+            "cwd": "${workspaceFolder}/Rigol.UI",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "UI: session check (headless)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Rigol.UI/bin/Debug/net8.0/Rigol.UI.dll",
+            "args": [
+                "--check",
+                "${input:scopeIp}"
+            ],
+            "cwd": "${workspaceFolder}/Rigol.UI",
+            // Rigol.UI is a WinExe, so it has no console of its own. The integrated terminal
+            // gives the --check output somewhere to go.
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Console: mask bench",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Rigol/bin/Debug/net8.0/Rigol.dll",
+            "args": [
+                "${input:scopeIp}"
+            ],
+            "cwd": "${workspaceFolder}/Rigol",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Console: mask self-test (no scope)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Rigol/bin/Debug/net8.0/Rigol.dll",
+            "args": [
+                "--selftest"
+            ],
+            "cwd": "${workspaceFolder}/Rigol",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ],
+
+    "inputs": [
+        {
+            "id": "scopeIp",
+            "type": "promptString",
+            "description": "IP address of the scope (press Enter for the default)",
+            "default": "192.168.1.12"
         }
     ]
 }

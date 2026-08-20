@@ -1,0 +1,135 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "detail": "Build the whole solution",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Rigol.sln",
+                "-property:GenerateFullPaths=true",
+                "-consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run ui",
+            "detail": "Start the Avalonia mask test window",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/Rigol.UI/Rigol.UI.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "watch ui",
+            "detail": "Start the UI with hot reload, rebuilding on every save",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "--project",
+                "${workspaceFolder}/Rigol.UI/Rigol.UI.csproj",
+                "run"
+            ],
+            "problemMatcher": "$msCompile",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "run ui check",
+            "detail": "Headless smoke test of the UI engine against the scope",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/Rigol.UI/Rigol.UI.csproj",
+                "--",
+                "--check",
+                "${input:scopeIp}"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "run bench",
+            "detail": "Compare the software mask against the scope's own pass/fail test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/Rigol/Rigol.csproj",
+                "--",
+                "${input:scopeIp}"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "run selftest",
+            "detail": "Verify the mask logic on synthetic waveforms, no scope needed",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/Rigol/Rigol.csproj",
+                "--",
+                "--selftest"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "clean",
+            "detail": "Remove all build output",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/Rigol.sln"
+            ],
+            "problemMatcher": []
+        }
+    ],
+
+    "inputs": [
+        {
+            "id": "scopeIp",
+            "type": "promptString",
+            "description": "IP address of the scope (press Enter for the default)",
+            "default": "192.168.1.12"
+        }
+    ]
+}
