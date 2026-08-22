@@ -13,7 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # `submodules: recursive` is required to pull in NET_IPTE_SCPI (see .gitmodules).
+      # If NET_IPTE_SCPI ever becomes a private repo outside this one's own access,
+      # the default GITHUB_TOKEN won't be able to clone it — swap in a PAT with read
+      # access to it via the `token:` input.
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup .NET 📦
         uses: actions/setup-dotnet@v3

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Keeps git submodules (e.g. NET_IPTE_SCPI) in sync whenever you switch
+# branches, so a submodule bump on the branch you just checked out is
+# picked up without a manual `git submodule update --init --recursive`.
+#
+# Installed by scripts/bootstrap.sh via `git config core.hooksPath .githooks`.
+
+is_branch_checkout=$3
+
+if [ "$is_branch_checkout" = "1" ]; then
+    git submodule update --init --recursive
+fi

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Keeps git submodules (e.g. NET_IPTE_SCPI) in sync after `git pull` /
+# `git merge`, so a submodule bump that came in with the merge is checked
+# out without a manual `git submodule update --init --recursive`.
+#
+# Installed by scripts/bootstrap.sh via `git config core.hooksPath .githooks`.
+
+git submodule update --init --recursive
