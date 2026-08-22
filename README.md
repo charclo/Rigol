@@ -2,7 +2,8 @@
 
 .NET tooling for Rigol oscilloscopes (mask testing, waveform capture, an
 Avalonia UI) built on top of [NET_IPTE_SCPI](https://github.com/charclo/NET_IPTE_SCPI),
-a shared SCPI driver library used as a git submodule.
+a shared SCPI driver library currently used as a git submodule (see
+"Switching to the NuGet package" below for where that's headed).
 
 - `Rigol/` — console app: mask bench, self-test, profiling.
 - `Rigol.UI/` — Avalonia desktop UI.
@@ -37,17 +38,49 @@ branches with different NET_IPTE_SCPI pins all "just work".
 
 Then open `Rigol.sln`, or use the VS Code tasks (`build`, `run ui`, `run selftest`, …).
 
-## Why a submodule, and not a NuGet package
+## Switching to the NuGet package
 
 NET_IPTE_SCPI is also used by other C# drivers (e.g. a DMM driver) outside
-this repo. A NuGet package would be the more standard way to share it across
-those repos, but that needs a package feed reachable from every machine that
-builds them, and self-hosting one (e.g. on a Gitea NuGet feed) is more
-infrastructure than the current setup warrants. The submodule keeps things
-dependency-free — the trade-off is that submodules are easy to forget about,
-which is what the bootstrap script and hooks above are for. If a shared feed
-ever becomes available, switching NET_IPTE_SCPI's `ProjectReference` to a
-`PackageReference` is a one-line change per driver repo.
+this repo, which is the actual motivation for moving off the submodule: a
+NuGet package is the standard way to share one library across several repos
+without git submodule bookkeeping in each of them.
+
+NET_IPTE_SCPI now publishes itself as a package to a local Gitea feed on
+every `vX.Y.Z` tag (see its own README, "Publishing a new version") — but
+this repo hasn't cut over to consuming it yet. `nuget.config` here already
+has the Gitea source wired up, scoped via `packageSourceMapping` so it only
+applies to the `NET_IPTE_SCPI` package and has no effect until the switch
+below is made — today's `ProjectReference`/submodule setup, and this repo's
+GitHub-hosted (cloud) CI, keep working exactly as before regardless.
+
+The switch is deliberately not done automatically here because it needs
+two things confirmed working first, neither of which can be checked from
+this repo: that the Gitea feed is actually reachable at the URL filled into
+`nuget.config`, and that a package has actually been published to it (push
+a `vX.Y.Z` tag on NET_IPTE_SCPI and confirm the publish workflow succeeds).
+Once both hold:
+
+1. In `nuget.config`, replace `GITEA-HOST` and `GITEA-OWNER` with the real
+   feed URL.
+2. Set `GITEA_NUGET_USER` / `GITEA_NUGET_TOKEN` as environment variables on
+   any machine that will restore this repo (a Gitea access token with
+   `read:package` scope is enough for restoring).
+3. In `Rigol/Rigol.csproj`, replace the `ProjectReference` with:
+   ```xml
+   <PackageReference Include="NET_IPTE_SCPI" Version="0.2.0" />
+   ```
+   (whatever version was actually published).
+4. The `NET_IPTE_SCPI/` submodule and `.gitmodules` can then be removed,
+   along with the bootstrap-script/hooks setup above — none of it is needed
+   once nothing references the submodule anymore.
+5. This repo's own CI (`.github/workflows/dotnet.yml`) restores from a
+   GitHub-hosted runner, which — same as NET_IPTE_SCPI's publish workflow —
+   can't reach a LAN-only Gitea. Once step 3 lands, that workflow needs a
+   self-hosted runner too (see NET_IPTE_SCPI's README for how to register
+   one), or `dotnet restore` there will fail to resolve the package.
+
+Until then, the submodule is what's actually in use, so the rest of this
+README documents that setup.
 
 ## Using NET_IPTE_SCPI as a submodule in another driver repo
 
