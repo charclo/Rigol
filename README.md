@@ -38,6 +38,37 @@ branches with different NET_IPTE_SCPI pins all "just work".
 
 Then open `Rigol.sln`, or use the VS Code tasks (`build`, `run ui`, `run selftest`, …).
 
+## Working from a customer site (no route to GitHub)
+
+Some fixes get made directly on a customer's production PC while debugging
+against real hardware there, and those sites don't all have the same network
+access — some can reach github.com, some can't. `scripts/site-sync.sh` works
+either way:
+
+```sh
+./scripts/site-sync.sh          # uses the current branch
+./scripts/site-sync.sh my-branch
+```
+
+It tries a normal `git push` first. If that fails, it packages your commits
+into a single portable `git bundle` file under `site-bundles/` (already
+git-ignored — never commit one) instead, with the follow-up command printed
+for you.
+
+Back at a connected machine, in an up-to-date clone of this repo:
+
+```sh
+./scripts/apply-bundle.sh site-bundles/my-branch-20260101-120000.bundle
+```
+
+This fetches the bundle's commits into a local `site-import/<branch>`
+branch so you can review them (`git log origin/<branch>..site-import/<branch>`)
+before pushing them for real — the script prints the exact push command.
+
+No commit history, authorship, or timestamps are lost either way; a bundle
+is just git's own transfer format carried over a USB stick or shared drive
+instead of a network connection.
+
 ## Switching to the NuGet package
 
 NET_IPTE_SCPI is also used by other C# drivers (e.g. a DMM driver) outside
